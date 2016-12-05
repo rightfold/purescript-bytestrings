@@ -1,5 +1,6 @@
 {
   "name": "purescript-bytestrings",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "purescript-node-buffer": "^2.0.0",
     "purescript-prelude": "^2.1.0",
