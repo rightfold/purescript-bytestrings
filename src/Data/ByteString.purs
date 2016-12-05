@@ -1,10 +1,13 @@
 module Data.ByteString
-( ByteString
+( Octet
+, ByteString
 
 , unsafeFreeze
 , unsafeThaw
 
 , empty
+
+, unpack
 
 , fromString
 ) where
@@ -16,6 +19,10 @@ import Node.Buffer as Buffer
 import Node.Encoding (Encoding)
 import Prelude
 
+-- | Type synonym indicating the value should be an octet (0-255). If the value
+-- | provided is outside this range it will be used as modulo 255.
+type Octet = Int
+
 -- | A packed sequence of bytes.
 newtype ByteString = ByteString Buffer
 
@@ -24,6 +31,12 @@ instance semigroupByteString :: Semigroup ByteString where
 
 instance monoidByteString :: Monoid ByteString where
     mempty = empty
+
+instance eqByteString :: Eq ByteString where
+    eq a b = unpack a == unpack b
+
+instance ordByteString :: Ord ByteString where
+    compare a b = unpack a `compare` unpack b
 
 -- | The result points directly into the buffer. Mutating the buffer afterwards
 -- | results in undefined behavior.
@@ -38,6 +51,10 @@ unsafeThaw (ByteString s) = s
 -- | The empty byte string.
 empty :: ByteString
 empty = unsafeFreeze $ unsafePerformEff $ Buffer.create 0
+
+-- | Return the bytes of a byte string.
+unpack :: ByteString -> Array Octet
+unpack = unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
 
 -- | Encode a string.
 fromString :: String -> Encoding -> ByteString
