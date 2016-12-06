@@ -10,6 +10,7 @@ module Data.ByteString
 , unpack
 
 , fromString
+, toString
 ) where
 
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
@@ -63,3 +64,7 @@ unpack = unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
 -- | Encode a string.
 fromString :: String -> Encoding -> ByteString
 fromString s e = unsafeFreeze $ unsafePerformEff $ Buffer.fromString s e
+
+-- | Decode a string.
+toString :: ByteString -> Encoding -> String
+toString s e = unsafePerformEff $ Buffer.toString e (unsafeThaw s)
