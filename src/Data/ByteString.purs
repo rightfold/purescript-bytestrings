@@ -131,7 +131,7 @@ last bs = unsafePerformEff do
 init :: ByteString -> Maybe ByteString
 init = unsnoc >>> map _.init
 
--- | *O(n)* How many bytes are in this byte string?
+-- | *O(1)* How many bytes are in this byte string?
 length :: ByteString -> Int
 length = unsafePerformEff <<< Buffer.size <<< unsafeThaw
 
