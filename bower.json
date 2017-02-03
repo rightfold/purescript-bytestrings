@@ -6,7 +6,9 @@
     "purescript-prelude": "^2.1.0",
     "purescript-eff": "^2.0.0",
     "purescript-monoid": "^2.2.0",
-    "purescript-quickcheck": "^3.1.1"
+    "purescript-quickcheck": "^3.1.1",
+    "purescript-maybe": "^2.0.1",
+    "purescript-arrays": "^3.2.0"
   },
   "repository": {
     "type": "git",
