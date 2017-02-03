@@ -4,7 +4,8 @@ module Test.Main
 
 import Data.ByteString
 import Data.Maybe (Maybe(..))
-import Prelude
+import Prelude hiding (map)
+import Prelude as Prelude
 import Test.QuickCheck ((===), quickCheck)
 import Test.QuickCheck.Laws.Data.Eq (checkEq)
 import Test.QuickCheck.Laws.Data.Monoid (checkMonoid)
@@ -65,9 +66,15 @@ main = do
     quickCheck $ isEmpty empty
     quickCheck $ \b -> isEmpty b === (length b == 0)
 
+    -- map
+    quickCheck $ \b f -> map f b === pack (Prelude.map f (unpack b))
+
+    -- reverse
+    quickCheck $ \b -> reverse (reverse b) === b
+
 withOctet :: ∀ a. (Octet -> a) -> Int -> a
 withOctet f x = f (abs x `mod` 256)
     where abs n = if n < 0 then negate n else n
 
 withOctets :: ∀ a. (Array Octet -> a) -> Array Int -> a
-withOctets f xs = f (map (withOctet id) xs)
+withOctets f xs = f (Prelude.map (withOctet id) xs)

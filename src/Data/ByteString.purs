@@ -21,6 +21,9 @@ module Data.ByteString
 , length
 , isEmpty
 
+, map
+, reverse
+
 , fromString
 , toString
 ) where
@@ -33,7 +36,8 @@ import Data.Monoid (class Monoid)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(UTF8))
-import Prelude
+import Prelude hiding (map)
+import Prelude as Prelude
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 --------------------------------------------------------------------------------
@@ -119,7 +123,7 @@ head = unsafePerformEff <<< realGetAtOffset 0 <<< unsafeThaw
 
 -- | *O(n)* Get all but the first byte.
 tail :: ByteString -> Maybe ByteString
-tail = uncons >>> map _.tail
+tail = uncons >>> Prelude.map _.tail
 
 -- | *O(1)* Get the last byte.
 last :: ByteString -> Maybe Octet
@@ -129,7 +133,7 @@ last bs = unsafePerformEff do
 
 -- | *O(n)* Get all but the last byte.
 init :: ByteString -> Maybe ByteString
-init = unsnoc >>> map _.init
+init = unsnoc >>> Prelude.map _.init
 
 -- | *O(1)* How many bytes are in this byte string?
 length :: ByteString -> Int
@@ -142,6 +146,16 @@ isEmpty = length >>> eq 0
 -- https://github.com/purescript-node/purescript-node-buffer/issues/14
 foreign import realGetAtOffset
     :: ∀ eff. Int -> Buffer -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
+
+--------------------------------------------------------------------------------
+
+-- | *O(n)* Transform the bytes in the byte string.
+map :: (Octet -> Octet) -> ByteString -> ByteString
+map f = pack <<< Prelude.map f <<< unpack
+
+-- | *O(n)* Reverse the byte string.
+reverse :: ByteString -> ByteString
+reverse = pack <<< Array.reverse <<< unpack
 
 --------------------------------------------------------------------------------
 
