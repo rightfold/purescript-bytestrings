@@ -21,6 +21,8 @@ import Node.Encoding (Encoding(UTF8))
 import Prelude
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
+--------------------------------------------------------------------------------
+
 -- | Type synonym indicating the value should be an octet (0-255). If the value
 -- | provided is outside this range it will be used as modulo 255.
 type Octet = Int
@@ -43,6 +45,8 @@ instance ordByteString :: Ord ByteString where
 instance arbitraryByteString :: Arbitrary ByteString where
     arbitrary = fromString `flip` UTF8 <$> arbitrary
 
+--------------------------------------------------------------------------------
+
 -- | The result points directly into the buffer. Mutating the buffer afterwards
 -- | results in undefined behavior.
 unsafeFreeze :: Buffer -> ByteString
@@ -53,13 +57,19 @@ unsafeFreeze = ByteString
 unsafeThaw :: ByteString -> Buffer
 unsafeThaw (ByteString s) = s
 
+--------------------------------------------------------------------------------
+
 -- | The empty byte string.
 empty :: ByteString
 empty = unsafeFreeze $ unsafePerformEff $ Buffer.create 0
 
+--------------------------------------------------------------------------------
+
 -- | Return the bytes of a byte string.
 unpack :: ByteString -> Array Octet
 unpack = unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
+
+--------------------------------------------------------------------------------
 
 -- | Encode a string.
 fromString :: String -> Encoding -> ByteString
