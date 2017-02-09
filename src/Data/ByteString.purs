@@ -28,6 +28,8 @@ module Data.ByteString
 
 , fromString
 , toString
+, toUTF8
+, fromUTF8
 ) where
 
 import Control.Monad.Eff (Eff)
@@ -168,3 +170,11 @@ fromString s e = unsafeFreeze $ unsafePerformEff $ Buffer.fromString s e
 -- | *O(n)* Decode a string.
 toString :: ByteString -> Encoding -> String
 toString s e = unsafePerformEff $ Buffer.toString e (unsafeThaw s)
+
+-- | *O(n)* `flip fromString UTF8`.
+toUTF8 :: String -> ByteString
+toUTF8 = flip fromString UTF8
+
+-- | *O(n)* `flip toString UTF8`
+fromUTF8 :: ByteString -> String
+fromUTF8 = flip toString UTF8
