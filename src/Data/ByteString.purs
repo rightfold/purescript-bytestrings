@@ -1,5 +1,7 @@
 module Data.ByteString
-( Octet
+( module Node.Encoding
+
+, Octet
 , ByteString
 
 , unsafeFreeze
@@ -35,7 +37,7 @@ import Data.Maybe (Maybe)
 import Data.Monoid (class Monoid)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
-import Node.Encoding (Encoding(UTF8))
+import Node.Encoding (Encoding(..))
 import Prelude hiding (map)
 import Prelude as Prelude
 import Test.QuickCheck (class Arbitrary, arbitrary)
