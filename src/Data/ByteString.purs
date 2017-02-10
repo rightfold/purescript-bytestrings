@@ -69,7 +69,7 @@ instance arbitraryByteString :: Arbitrary ByteString where
     arbitrary = fromString `flip` UTF8 <$> arbitrary
 
 instance showByteString :: Show ByteString where
-    show bs = "pack " <> show (unpack bs)
+    show bs = "(pack " <> show (unpack bs) <> ")"
 
 --------------------------------------------------------------------------------
 
