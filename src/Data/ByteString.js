@@ -2,6 +2,12 @@
 
 var Data_Maybe = require('../Data.Maybe');
 
+exports.unsafeIndex = function(buffer) {
+    return function(offset) {
+        return buffer[offset];
+    };
+};
+
 exports.realGetAtOffset = function(offset) {
     return function(buffer) {
         return function() {

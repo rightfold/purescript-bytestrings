@@ -12,6 +12,9 @@ module Data.ByteString
 , pack
 , unpack
 
+, index
+, (!!)
+, unsafeIndex
 , cons
 , snoc
 , uncons
@@ -103,6 +106,20 @@ unpack = unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
 
 --------------------------------------------------------------------------------
 
+-- | *O(1)* Get the nth byte.
+index :: ByteString -> Int -> Maybe Octet
+index b i = unsafePerformEff $ realGetAtOffset i (unsafeThaw b)
+
+infixl 8 index as !!
+
+-- | *O(1)* Get the nth byte. If the index is out of bounds, the behavior is
+-- | undefined.
+foreign import unsafeIndex :: ByteString -> Int -> Octet
+
+-- https://github.com/purescript-node/purescript-node-buffer/issues/14
+foreign import realGetAtOffset
+    :: ∀ eff. Int -> Buffer -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
+
 -- | *O(n)* Prepend a byte.
 cons :: Octet -> ByteString -> ByteString
 cons b bs = singleton b <> bs
@@ -123,7 +140,7 @@ unsnoc bs = Array.unsnoc (unpack bs)
 
 -- | *O(1)* Get the first byte.
 head :: ByteString -> Maybe Octet
-head = unsafePerformEff <<< realGetAtOffset 0 <<< unsafeThaw
+head = (_ !! 0)
 
 -- | *O(n)* Get all but the first byte.
 tail :: ByteString -> Maybe ByteString
@@ -131,9 +148,7 @@ tail = uncons >>> Prelude.map _.tail
 
 -- | *O(1)* Get the last byte.
 last :: ByteString -> Maybe Octet
-last bs = unsafePerformEff do
-    size <- Buffer.size (unsafeThaw bs)
-    realGetAtOffset (size - 1) (unsafeThaw bs)
+last bs = bs !! (length bs - 1)
 
 -- | *O(n)* Get all but the last byte.
 init :: ByteString -> Maybe ByteString
@@ -146,10 +161,6 @@ length = unsafePerformEff <<< Buffer.size <<< unsafeThaw
 -- | *O(1)* Check if a byte string is empty.
 isEmpty :: ByteString -> Boolean
 isEmpty = length >>> eq 0
-
--- https://github.com/purescript-node/purescript-node-buffer/issues/14
-foreign import realGetAtOffset
-    :: ∀ eff. Int -> Buffer -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
 
 --------------------------------------------------------------------------------
 
