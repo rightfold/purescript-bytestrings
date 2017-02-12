@@ -30,8 +30,6 @@ module Data.ByteString
 , reverse
 
 , Foldable
-, foldable
-, unFoldable
 , foldableOfOctet
 , foldl
 , foldr
@@ -47,6 +45,7 @@ import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Data.Array as Array
 import Data.Foldable (class Foldable, foldMapDefaultL)
 import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
+import Data.Newtype (class Newtype)
 import Data.Maybe (Maybe)
 import Data.Monoid (class Monoid, mempty)
 import Node.Buffer (BUFFER, Buffer)
@@ -187,17 +186,7 @@ reverse = pack <<< Array.reverse <<< unpack
 -- | A foldable byte string.
 newtype Foldable a = Foldable ByteString
 
--- | *O(1)* Construct a foldable byte string.
-foldable :: ByteString -> Foldable Octet
-foldable b = Foldable b
-
--- | *O(1)* Extract from a foldable byte string.
-unFoldable :: ∀ a. Foldable a -> ByteString
-unFoldable (Foldable b) = b
-
--- | *O(1)* Witness that foldable byte strings can only contain octets.
-foldableOfOctet :: ∀ a. Foldable a -> a ~ Octet
-foldableOfOctet = const $ Leibniz unsafeCoerce
+derive instance newtypeFoldable :: Newtype (Foldable Int) _
 
 instance foldableFoldable :: Foldable Foldable where
     foldMap = foldMapDefaultL
@@ -207,6 +196,10 @@ instance foldableFoldable :: Foldable Foldable where
     foldr f z fb@(Foldable b) = foldr f' z b
         where f' o x = f (coerceSymm leibniz o) x
               leibniz = foldableOfOctet fb
+
+-- | *O(1)* Witness that foldable byte strings can only contain octets.
+foldableOfOctet :: ∀ a. Foldable a -> a ~ Octet
+foldableOfOctet = const $ Leibniz unsafeCoerce
 
 -- | *O(n)* Fold a byte string.
 foreign import foldl :: ∀ a. (a -> Octet -> a) -> a -> ByteString -> a
