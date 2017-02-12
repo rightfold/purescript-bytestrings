@@ -28,6 +28,8 @@ module Data.ByteString
 
 , map
 , reverse
+, foldl
+, foldr
 
 , fromString
 , toString
@@ -171,6 +173,12 @@ map f = pack <<< Prelude.map f <<< unpack
 -- | *O(n)* Reverse the byte string.
 reverse :: ByteString -> ByteString
 reverse = pack <<< Array.reverse <<< unpack
+
+-- | *O(n)*
+foreign import foldl :: ∀ a. (a -> Octet -> a) -> a -> ByteString -> a
+
+-- | *O(n)*
+foreign import foldr :: ∀ a. (Octet -> a -> a) -> a -> ByteString -> a
 
 --------------------------------------------------------------------------------
 

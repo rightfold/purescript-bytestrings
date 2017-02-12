@@ -3,6 +3,7 @@ module Test.Main
 ) where
 
 import Data.ByteString
+import Data.Foldable as Foldable
 import Data.Maybe (Maybe(..))
 import Prelude hiding (map)
 import Prelude as Prelude
@@ -71,6 +72,12 @@ main = do
 
     -- reverse
     quickCheck $ \b -> reverse (reverse b) === b
+
+    -- foldl
+    quickCheck $ \b -> foldl (-) 0 b === Foldable.foldl (-) 0 (unpack b)
+
+    -- foldr
+    quickCheck $ \b -> foldr (-) 0 b === Foldable.foldr (-) 0 (unpack b)
 
 withOctet :: ∀ a. (Octet -> a) -> Int -> a
 withOctet f x = f (abs x `mod` 256)
