@@ -28,6 +28,11 @@ module Data.ByteString
 
 , map
 , reverse
+
+, Foldable
+, foldable
+, unFoldable
+, foldableOfOctet
 , foldl
 , foldr
 
@@ -40,14 +45,17 @@ module Data.ByteString
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Data.Array as Array
+import Data.Foldable (class Foldable, foldMapDefaultL)
+import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
 import Data.Maybe (Maybe)
-import Data.Monoid (class Monoid)
+import Data.Monoid (class Monoid, mempty)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
 import Prelude hiding (map)
 import Prelude as Prelude
 import Test.QuickCheck (class Arbitrary, arbitrary)
+import Unsafe.Coerce (unsafeCoerce)
 
 --------------------------------------------------------------------------------
 
@@ -174,10 +182,36 @@ map f = pack <<< Prelude.map f <<< unpack
 reverse :: ByteString -> ByteString
 reverse = pack <<< Array.reverse <<< unpack
 
--- | *O(n)*
+--------------------------------------------------------------------------------
+
+-- | A foldable byte string.
+newtype Foldable a = Foldable ByteString
+
+-- | *O(1)* Construct a foldable byte string.
+foldable :: ByteString -> Foldable Octet
+foldable b = Foldable b
+
+-- | *O(1)* Extract from a foldable byte string.
+unFoldable :: ∀ a. Foldable a -> ByteString
+unFoldable (Foldable b) = b
+
+-- | *O(1)* Witness that foldable byte strings can only contain octets.
+foldableOfOctet :: ∀ a. Foldable a -> a ~ Octet
+foldableOfOctet = const $ Leibniz unsafeCoerce
+
+instance foldableFoldable :: Foldable Foldable where
+    foldMap = foldMapDefaultL
+    foldl f z fb@(Foldable b) = foldl f' z b
+        where f' x o = f x (coerceSymm leibniz o)
+              leibniz = foldableOfOctet fb
+    foldr f z fb@(Foldable b) = foldr f' z b
+        where f' o x = f (coerceSymm leibniz o) x
+              leibniz = foldableOfOctet fb
+
+-- | *O(n)* Fold a byte string.
 foreign import foldl :: ∀ a. (a -> Octet -> a) -> a -> ByteString -> a
 
--- | *O(n)*
+-- | *O(n)* Fold a byte string.
 foreign import foldr :: ∀ a. (Octet -> a -> a) -> a -> ByteString -> a
 
 --------------------------------------------------------------------------------

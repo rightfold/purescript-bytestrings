@@ -8,7 +8,10 @@
     "purescript-monoid": "^2.2.0",
     "purescript-quickcheck": "^3.1.1",
     "purescript-maybe": "^2.0.1",
-    "purescript-arrays": "^3.2.0"
+    "purescript-arrays": "^3.2.0",
+    "purescript-leibniz": "^2.0.0",
+    "purescript-foldable-traversable": "^2.2.0",
+    "purescript-unsafe-coerce": "^2.0.0"
   },
   "repository": {
     "type": "git",
