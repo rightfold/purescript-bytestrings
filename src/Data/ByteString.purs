@@ -105,11 +105,11 @@ empty = pack []
 singleton :: Octet -> ByteString
 singleton = pack <<< pure
 
--- | *O(n)* A byte string with many bytes.
+-- | *Θ(n)* A byte string with many bytes.
 pack :: Array Octet -> ByteString
 pack = unsafeFreeze <<< unsafePerformEff <<< Buffer.fromArray
 
--- | *O(n)* Get the bytes from a byte string.
+-- | *Θ(n)* Get the bytes from a byte string.
 unpack :: ByteString -> Array Octet
 unpack = unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
 
@@ -129,20 +129,20 @@ foreign import unsafeIndex :: ByteString -> Int -> Octet
 foreign import realGetAtOffset
     :: ∀ eff. Int -> Buffer -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
 
--- | *O(n)* Prepend a byte.
+-- | *Θ(n)* Prepend a byte.
 cons :: Octet -> ByteString -> ByteString
 cons b bs = singleton b <> bs
 
--- | *O(n)* Append a byte.
+-- | *Θ(n)* Append a byte.
 snoc :: ByteString -> Octet -> ByteString
 snoc bs b = bs <> singleton b
 
--- | *O(n)* Unprepend a byte.
+-- | *Θ(n)* Unprepend a byte.
 uncons :: ByteString -> Maybe {head :: Octet, tail :: ByteString}
 uncons bs = Array.uncons (unpack bs)
             <#> case _ of {head, tail} -> {head, tail: pack tail}
 
--- | *O(n)* Unappend a byte.
+-- | *Θ(n)* Unappend a byte.
 unsnoc :: ByteString -> Maybe {init :: ByteString, last :: Octet}
 unsnoc bs = Array.unsnoc (unpack bs)
             <#> case _ of {init, last} -> {init: pack init, last}
@@ -151,7 +151,7 @@ unsnoc bs = Array.unsnoc (unpack bs)
 head :: ByteString -> Maybe Octet
 head = (_ !! 0)
 
--- | *O(n)* Get all but the first byte.
+-- | *Θ(n)* Get all but the first byte.
 tail :: ByteString -> Maybe ByteString
 tail = uncons >>> Prelude.map _.tail
 
@@ -159,7 +159,7 @@ tail = uncons >>> Prelude.map _.tail
 last :: ByteString -> Maybe Octet
 last bs = bs !! (length bs - 1)
 
--- | *O(n)* Get all but the last byte.
+-- | *Θ(n)* Get all but the last byte.
 init :: ByteString -> Maybe ByteString
 init = unsnoc >>> Prelude.map _.init
 
@@ -173,11 +173,11 @@ isEmpty = length >>> eq 0
 
 --------------------------------------------------------------------------------
 
--- | *O(n)* Transform the bytes in the byte string.
+-- | *Θ(n)* Transform the bytes in the byte string.
 map :: (Octet -> Octet) -> ByteString -> ByteString
 map f = pack <<< Prelude.map f <<< unpack
 
--- | *O(n)* Reverse the byte string.
+-- | *Θ(n)* Reverse the byte string.
 reverse :: ByteString -> ByteString
 reverse = pack <<< Array.reverse <<< unpack
 
@@ -201,26 +201,26 @@ instance foldableFoldable :: Foldable Foldable where
 foldableOfOctet :: ∀ a. Foldable a -> a ~ Octet
 foldableOfOctet = const $ Leibniz unsafeCoerce
 
--- | *O(n)* Fold a byte string.
+-- | *Θ(n)* Fold a byte string.
 foreign import foldl :: ∀ a. (a -> Octet -> a) -> a -> ByteString -> a
 
--- | *O(n)* Fold a byte string.
+-- | *Θ(n)* Fold a byte string.
 foreign import foldr :: ∀ a. (Octet -> a -> a) -> a -> ByteString -> a
 
 --------------------------------------------------------------------------------
 
--- | *O(n)* Encode a string.
+-- | *Θ(n)* Encode a string.
 fromString :: String -> Encoding -> ByteString
 fromString s e = unsafeFreeze $ unsafePerformEff $ Buffer.fromString s e
 
--- | *O(n)* Decode a string.
+-- | *Θ(n)* Decode a string.
 toString :: ByteString -> Encoding -> String
 toString s e = unsafePerformEff $ Buffer.toString e (unsafeThaw s)
 
--- | *O(n)* `flip fromString UTF8`.
+-- | *Θ(n)* `flip fromString UTF8`.
 toUTF8 :: String -> ByteString
 toUTF8 = flip fromString UTF8
 
--- | *O(n)* `flip toString UTF8`
+-- | *Θ(n)* `flip toString UTF8`
 fromUTF8 :: ByteString -> String
 fromUTF8 = flip toString UTF8
