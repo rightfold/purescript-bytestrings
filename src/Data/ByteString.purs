@@ -47,7 +47,7 @@ import Data.Foldable (class Foldable, foldMapDefaultL)
 import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
 import Data.Newtype (class Newtype)
 import Data.Maybe (Maybe)
-import Data.Monoid (class Monoid, mempty)
+import Data.Monoid (class Monoid)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
@@ -140,12 +140,12 @@ snoc bs b = bs <> singleton b
 -- | *Θ(n)* Unprepend a byte.
 uncons :: ByteString -> Maybe {head :: Octet, tail :: ByteString}
 uncons bs = Array.uncons (unpack bs)
-            <#> case _ of {head, tail} -> {head, tail: pack tail}
+            <#> case _ of {head: h, tail: t} -> {head: h, tail: pack t}
 
 -- | *Θ(n)* Unappend a byte.
 unsnoc :: ByteString -> Maybe {init :: ByteString, last :: Octet}
 unsnoc bs = Array.unsnoc (unpack bs)
-            <#> case _ of {init, last} -> {init: pack init, last}
+            <#> case _ of {init: i, last: l} -> {init: pack i, last: l}
 
 -- | *O(1)* Get the first byte.
 head :: ByteString -> Maybe Octet
