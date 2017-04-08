@@ -1,26 +1,26 @@
 {
   "name": "purescript-bytestrings",
   "license": "BSD-3-Clause",
-  "dependencies": {
-    "purescript-node-buffer": "^2.0.0",
-    "purescript-prelude": "^2.1.0",
-    "purescript-eff": "^2.0.0",
-    "purescript-monoid": "^2.2.0",
-    "purescript-quickcheck": "^3.1.1",
-    "purescript-maybe": "^2.0.1",
-    "purescript-arrays": "^3.2.0",
-    "purescript-leibniz": "^2.0.0",
-    "purescript-foldable-traversable": "^2.2.0",
-    "purescript-unsafe-coerce": "^2.0.0",
-    "purescript-newtype": "^1.3.0",
-    "purescript-integers": "^2.1.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/rightfold/purescript-bytestrings.git"
   },
+  "dependencies": {
+    "purescript-node-buffer": "^3.0.0",
+    "purescript-prelude": "^3.0.0",
+    "purescript-eff": "^3.1.0",
+    "purescript-monoid": "^3.0.0",
+    "purescript-quickcheck": "^4.0.0",
+    "purescript-maybe": "^3.0.0",
+    "purescript-arrays": "^4.0.1",
+    "purescript-leibniz": "^4.0.0",
+    "purescript-foldable-traversable": "^3.0.0",
+    "purescript-unsafe-coerce": "^3.0.0",
+    "purescript-newtype": "^2.0.0",
+    "purescript-integers": "^3.0.0"
+  },
   "devDependencies": {
-    "purescript-quickcheck-laws": "^2.1.0",
-    "purescript-proxy": "^1.0.0"
+    "purescript-quickcheck-laws": "^3.0.0",
+    "purescript-proxy": "^2.0.0"
   }
 }
