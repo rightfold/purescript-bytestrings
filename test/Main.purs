@@ -5,6 +5,7 @@ module Test.Main
 import Data.ByteString
 import Data.Foldable as Foldable
 import Data.Maybe (Maybe(..))
+import Data.Ord (abs)
 import Prelude hiding (map)
 import Prelude as Prelude
 import Test.QuickCheck ((===), quickCheck)
@@ -13,6 +14,7 @@ import Test.QuickCheck.Laws.Data.Monoid (checkMonoid)
 import Test.QuickCheck.Laws.Data.Ord (checkOrd)
 import Test.QuickCheck.Laws.Data.Semigroup (checkSemigroup)
 import Type.Proxy (Proxy(..))
+import Type.Quotient (mkQuotient, runQuotient)
 
 main = do
     -- laws
@@ -74,14 +76,17 @@ main = do
     quickCheck $ \b -> reverse (reverse b) === b
 
     -- foldl
-    quickCheck $ \b -> foldl (-) 0 b === Foldable.foldl (-) 0 (unpack b)
+    quickCheck $ \b -> foldl subL 0 b === Foldable.foldl (-) 0 (runQuotient <$> unpack b)
 
     -- foldr
-    quickCheck $ \b -> foldr (-) 0 b === Foldable.foldr (-) 0 (unpack b)
+    quickCheck $ \b -> foldr subR 0 b === Foldable.foldr (-) 0 (runQuotient <$> unpack b)
+
+  where
+  subL a b = a - runQuotient b
+  subR a b = runQuotient a - b
 
 withOctet :: ∀ a. (Octet -> a) -> Int -> a
-withOctet f x = f (abs x `mod` 256)
-    where abs n = if n < 0 then negate n else n
+withOctet f x = f (mkQuotient $ abs x)
 
 withOctets :: ∀ a. (Array Octet -> a) -> Array Int -> a
 withOctets f xs = f (Prelude.map (withOctet id) xs)

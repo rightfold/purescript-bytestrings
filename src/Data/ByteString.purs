@@ -1,6 +1,7 @@
 module Data.ByteString
 ( module Node.Encoding
 
+, Mod256
 , Octet
 , ByteString
 
@@ -45,22 +46,27 @@ import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Data.Array as Array
 import Data.Foldable (class Foldable, foldMapDefaultL)
 import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
-import Data.Newtype (class Newtype)
 import Data.Maybe (Maybe)
 import Data.Monoid (class Monoid)
+import Data.Newtype (class Newtype)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
-import Prelude hiding (map)
 import Prelude as Prelude
+import Prelude hiding (map)
 import Test.QuickCheck (class Arbitrary, arbitrary)
+import Type.Quotient (class Canonical, type (/))
 import Unsafe.Coerce (unsafeCoerce)
 
 --------------------------------------------------------------------------------
 
--- | Type synonym indicating the value should be an octet (0-255). If the value
--- | provided is outside this range it will be used as modulo 256.
-type Octet = Int
+foreign import data Mod256 :: Type
+
+instance canonicalMod256 :: Canonical Int Mod256 where
+  canonical _ = (_ `mod` 256)
+
+-- | An 8-bit non-negative integer.
+type Octet = Int / Mod256
 
 -- | A packed sequence of bytes.
 newtype ByteString = ByteString Buffer
@@ -107,11 +113,13 @@ singleton = pack <<< pure
 
 -- | *Θ(n)* A byte string with many bytes.
 pack :: Array Octet -> ByteString
-pack = unsafeFreeze <<< unsafePerformEff <<< Buffer.fromArray
+pack = unsafeFreeze <<< unsafePerformEff <<< Buffer.fromArray <<< coerce
+  where coerce = unsafeCoerce :: Array Octet -> Array Int
 
 -- | *Θ(n)* Get the bytes from a byte string.
 unpack :: ByteString -> Array Octet
-unpack = unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
+unpack = coerce <<< unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
+  where coerce = unsafeCoerce :: Array Int -> Array Octet
 
 --------------------------------------------------------------------------------
 
