@@ -2,10 +2,10 @@ module Test.Main
 ( main
 ) where
 
+import Control.Monad.Eff.Console (log)
 import Data.ByteString
 import Data.Foldable as Foldable
 import Data.Maybe (Maybe(..))
-import Data.Ord (abs)
 import Prelude hiding (map)
 import Prelude as Prelude
 import Test.QuickCheck ((===), quickCheck)
@@ -17,68 +17,68 @@ import Type.Proxy (Proxy(..))
 import Type.Quotient (mkQuotient, runQuotient)
 
 main = do
-    -- laws
+    log "laws"
     checkEq        (Proxy :: Proxy ByteString)
     checkMonoid    (Proxy :: Proxy ByteString)
     checkOrd       (Proxy :: Proxy ByteString)
     checkSemigroup (Proxy :: Proxy ByteString)
 
-    -- singleton
-    quickCheck $ withOctet \b -> unpack (singleton b) === [b]
+    log "singleton"
+    quickCheck $ \b -> unpack (singleton b) === [b]
 
-    -- pack and unpack
-    quickCheck $ withOctets \b -> unpack (pack b) === b
+    log "pack and unpack"
+    quickCheck $ \b -> unpack (pack b) === b
     quickCheck $ \b -> pack (unpack b) === b
 
-    -- cons
-    quickCheck $ withOctet \c b -> unpack (cons c b) === [c] <> unpack b
+    log "cons"
+    quickCheck $ \c b -> unpack (cons c b) === [c] <> unpack b
 
-    -- snoc
-    quickCheck $ withOctet \c b -> unpack (snoc b c) === unpack b <> [c]
+    log "snoc"
+    quickCheck $ \c b -> unpack (snoc b c) === unpack b <> [c]
 
-    -- uncons
-    quickCheck $ withOctet \c b -> case uncons (cons c b) of
-                                       Just r  -> r.head == c && r.tail == b
-                                       Nothing -> false
+    log "uncons"
+    quickCheck $ \c b -> case uncons (cons c b) of
+                           Just r  -> r.head == c && r.tail == b
+                           Nothing -> false
 
-    -- unsnoc
-    quickCheck $ withOctet \c b -> case unsnoc (snoc b c) of
-                                       Just r  -> r.init == b && r.last == c
-                                       Nothing -> false
+    log "unsnoc"
+    quickCheck $ \c b -> case unsnoc (snoc b c) of
+                           Just r  -> r.init == b && r.last == c
+                           Nothing -> false
 
-    -- head
+    log "head"
     quickCheck $ head empty === Nothing
-    quickCheck $ withOctet \c b -> head (cons c b) === Just c
+    quickCheck $ \c b -> head (cons c b) === Just c
 
-    -- tail
+    log "tail"
     quickCheck $ tail empty === Nothing
-    quickCheck $ withOctet \c b -> tail (cons c b) === Just b
+    quickCheck $ \c b -> tail (cons c b) === Just b
 
-    -- last
+    log "last"
     quickCheck $ last empty === Nothing
-    quickCheck $ withOctet \c b -> last (snoc b c) === Just c
+    quickCheck $ \c b -> last (snoc b c) === Just c
 
-    -- init
+    log "init"
     quickCheck $ init empty === Nothing
-    quickCheck $ withOctet \c b -> init (snoc b c) === Just b
+    quickCheck $ \c b -> init (snoc b c) === Just b
 
-    -- length
+    log "length"
     quickCheck $ \b c -> length (b <> c) === length b + length c
 
-    -- isEmpty
+    log "isEmpty"
     quickCheck $ isEmpty empty
     quickCheck $ \b -> isEmpty b === (length b == 0)
 
-    -- map
+    log "map"
     quickCheck $ \b f -> map f b === pack (Prelude.map f (unpack b))
 
-    -- reverse
+    log "reverse"
     quickCheck $ \b -> reverse (reverse b) === b
 
-    -- foldl
+    log "foldl"
     quickCheck $ \b -> foldl subL 0 b === Foldable.foldl (-) 0 (runQuotient <$> unpack b)
 
-    -- foldr
+    log "foldr"
     quickCheck $ \b -> foldr subR 0 b === Foldable.foldr (-) 0 (runQuotient <$> unpack b)
 
   where
@@ -86,7 +86,7 @@ main = do
   subR a b = runQuotient a - b
 
 withOctet :: ∀ a. (Octet -> a) -> Int -> a
-withOctet f x = f (mkQuotient $ abs x)
+withOctet = flip $ (#) <<< mkQuotient
 
 withOctets :: ∀ a. (Array Octet -> a) -> Array Int -> a
 withOctets f xs = f (Prelude.map (withOctet id) xs)

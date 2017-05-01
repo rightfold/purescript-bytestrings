@@ -49,13 +49,14 @@ import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
 import Data.Maybe (Maybe)
 import Data.Monoid (class Monoid)
 import Data.Newtype (class Newtype)
+import Data.Ord (abs)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
 import Prelude as Prelude
 import Prelude hiding (map)
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Type.Quotient (class Canonical, type (/))
+import Type.Quotient (class Canonical, type (/), runQuotient)
 import Unsafe.Coerce (unsafeCoerce)
 
 --------------------------------------------------------------------------------
@@ -63,7 +64,7 @@ import Unsafe.Coerce (unsafeCoerce)
 foreign import data Mod256 :: Type
 
 instance canonicalMod256 :: Canonical Int Mod256 where
-  canonical _ = (_ `mod` 256)
+  canonical _ = abs <<< (_ `mod` 256)
 
 -- | An 8-bit non-negative integer.
 type Octet = Int / Mod256
@@ -113,8 +114,7 @@ singleton = pack <<< pure
 
 -- | *Θ(n)* A byte string with many bytes.
 pack :: Array Octet -> ByteString
-pack = unsafeFreeze <<< unsafePerformEff <<< Buffer.fromArray <<< coerce
-  where coerce = unsafeCoerce :: Array Octet -> Array Int
+pack = unsafeFreeze <<< unsafePerformEff <<< Buffer.fromArray <<< Prelude.map runQuotient
 
 -- | *Θ(n)* Get the bytes from a byte string.
 unpack :: ByteString -> Array Octet
