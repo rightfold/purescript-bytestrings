@@ -1,7 +1,6 @@
 module Data.ByteString
 ( module Node.Encoding
 
-, Mod256
 , Octet
 , ByteString
 
@@ -56,15 +55,10 @@ import Node.Encoding (Encoding(..))
 import Prelude as Prelude
 import Prelude hiding (map)
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Type.Quotient (class Canonical, type (/), runQuotient)
+import Type.Quotient (class Canonical, type (/), Mod256, runQuotient)
 import Unsafe.Coerce (unsafeCoerce)
 
 --------------------------------------------------------------------------------
-
-foreign import data Mod256 :: Type
-
-instance canonicalMod256 :: Canonical Int Mod256 where
-  canonical _ = abs <<< (_ `mod` 256)
 
 -- | An 8-bit non-negative integer.
 type Octet = Int / Mod256
