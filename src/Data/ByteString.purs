@@ -48,14 +48,13 @@ import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
 import Data.Maybe (Maybe)
 import Data.Monoid (class Monoid)
 import Data.Newtype (class Newtype)
-import Data.Ord (abs)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
 import Prelude as Prelude
 import Prelude hiding (map)
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Type.Quotient (class Canonical, type (/), Mod256, runQuotient)
+import Type.Quotient (type (/), Mod256, runQuotient)
 import Unsafe.Coerce (unsafeCoerce)
 
 --------------------------------------------------------------------------------
@@ -188,7 +187,7 @@ reverse = pack <<< Array.reverse <<< unpack
 -- | A foldable byte string.
 newtype Foldable a = Foldable ByteString
 
-derive instance newtypeFoldable :: Newtype (Foldable Int) _
+derive instance newtypeFoldable :: Newtype (Foldable (Int / Mod256)) _
 
 instance foldableFoldable :: Foldable Foldable where
     foldMap = foldMapDefaultL
