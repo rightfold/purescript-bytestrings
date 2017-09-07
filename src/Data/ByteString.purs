@@ -45,7 +45,7 @@ import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Data.Array as Array
 import Data.Foldable (class Foldable, foldMapDefaultL)
 import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe (..))
 import Data.Monoid (class Monoid)
 import Data.Newtype (class Newtype)
 import Node.Buffer (BUFFER, Buffer)
@@ -118,7 +118,7 @@ unpack = coerce <<< unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
 
 -- | *O(1)* Get the nth byte.
 index :: ByteString -> Int -> Maybe Octet
-index b i = unsafePerformEff $ realGetAtOffset i (unsafeThaw b)
+index b i = unsafePerformEff $ realGetAtOffset Nothing Just i (unsafeThaw b)
 
 infixl 8 index as !!
 
@@ -128,7 +128,12 @@ foreign import unsafeIndex :: ByteString -> Int -> Octet
 
 -- https://github.com/purescript-node/purescript-node-buffer/issues/14
 foreign import realGetAtOffset
-    :: ∀ eff. Int -> Buffer -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
+    :: ∀ eff
+     . (∀ a. Maybe a)
+    -> (∀ a. a -> Maybe a)
+    -> Int
+    -> Buffer
+    -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
 
 -- | *Θ(n)* Prepend a byte.
 cons :: Octet -> ByteString -> ByteString
