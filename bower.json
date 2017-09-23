@@ -18,7 +18,8 @@
     "purescript-unsafe-coerce": "^3.0.0",
     "purescript-newtype": "^2.0.0",
     "purescript-integers": "^3.0.0",
-    "purescript-quotient": "^1.0.0"
+    "purescript-quotient": "^1.0.0",
+    "purescript-exceptions": "^3.1.0"
   },
   "devDependencies": {
     "purescript-quickcheck-laws": "^3.0.0",

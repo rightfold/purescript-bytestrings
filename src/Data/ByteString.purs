@@ -41,16 +41,18 @@ module Data.ByteString
 ) where
 
 import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Exception (catchException)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Data.Array as Array
 import Data.Foldable (class Foldable, foldMapDefaultL)
 import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
-import Data.Maybe (Maybe (..))
+import Data.Maybe (Maybe (..), fromJust)
 import Data.Monoid (class Monoid)
 import Data.Newtype (class Newtype)
 import Node.Buffer (BUFFER, Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
+import Partial.Unsafe (unsafePartial)
 import Prelude as Prelude
 import Prelude hiding (map)
 import Test.QuickCheck (class Arbitrary, arbitrary)
@@ -78,7 +80,7 @@ instance ordByteString :: Ord ByteString where
     compare a b = unpack a `compare` unpack b
 
 instance arbitraryByteString :: Arbitrary ByteString where
-    arbitrary = fromString `flip` UTF8 <$> arbitrary
+    arbitrary = toUTF8 <$> arbitrary
 
 instance showByteString :: Show ByteString where
     show bs = "(pack " <> show (unpack bs) <> ")"
@@ -216,16 +218,18 @@ foreign import foldr :: ∀ a. (Octet -> a -> a) -> a -> ByteString -> a
 --------------------------------------------------------------------------------
 
 -- | *Θ(n)* Encode a string.
-fromString :: String -> Encoding -> ByteString
-fromString s e = unsafeFreeze $ unsafePerformEff $ Buffer.fromString s e
+fromString :: String -> Encoding -> Maybe ByteString
+fromString s e = Prelude.map unsafeFreeze <<< unsafePerformEff $
+  catchException (const $ pure Nothing)
+                 (Just <$> Buffer.fromString s e)
 
 -- | *Θ(n)* Decode a string.
 toString :: ByteString -> Encoding -> String
 toString s e = unsafePerformEff $ Buffer.toString e (unsafeThaw s)
 
--- | *Θ(n)* `flip fromString UTF8`.
+-- | *Θ(n)* `unsafePartial fromJust <<< flip fromString UTF8`.
 toUTF8 :: String -> ByteString
-toUTF8 = flip fromString UTF8
+toUTF8 = unsafePartial fromJust <<< flip fromString UTF8
 
 -- | *Θ(n)* `flip toString UTF8`
 fromUTF8 :: ByteString -> String

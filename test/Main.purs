@@ -81,6 +81,10 @@ main = do
     log "foldr"
     quickCheck $ \b -> foldr subR 0 b === Foldable.foldr (-) 0 (runQuotient <$> unpack b)
 
+    log "fromString"
+    quickCheck $ fromString "ABCD" Hex === Just (withOctets pack [0xAB, 0xCD])
+    quickCheck $ fromString "LOL" Hex === Nothing
+
   where
   subL a b = a - runQuotient b
   subR a b = runQuotient a - b
