@@ -1,7 +1,5 @@
 # purescript-bytestrings
 
-[![Latest release](http://img.shields.io/bower/v/purescript-bytestrings.svg)](https://github.com/purescript/purescript-bytestrings/releases)
-
 Immutable packed byte sequences. Similar to the Haskell bytestring package.
 
 ## Installation
