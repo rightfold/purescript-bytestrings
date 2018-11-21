@@ -40,16 +40,15 @@ module Data.ByteString
 , fromUTF8
 ) where
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Exception (catchException)
-import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Effect (Effect)
+import Effect.Exception (catchException)
+import Effect.Unsafe (unsafePerformEffect)
 import Data.Array as Array
 import Data.Foldable (class Foldable, foldMapDefaultL)
 import Data.Leibniz (type (~), Leibniz(..), coerceSymm)
 import Data.Maybe (Maybe (..), fromJust)
-import Data.Monoid (class Monoid)
 import Data.Newtype (class Newtype)
-import Node.Buffer (BUFFER, Buffer)
+import Node.Buffer (Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
 import Partial.Unsafe (unsafePartial)
@@ -68,7 +67,7 @@ type Octet = Int / Mod256
 newtype ByteString = ByteString Buffer
 
 instance semigroupByteString :: Semigroup ByteString where
-    append a b = unsafeFreeze $ unsafePerformEff $ Buffer.concat [unsafeThaw a, unsafeThaw b]
+    append a b = unsafeFreeze $ unsafePerformEffect $ Buffer.concat [unsafeThaw a, unsafeThaw b]
 
 instance monoidByteString :: Monoid ByteString where
     mempty = empty
@@ -109,18 +108,18 @@ singleton = pack <<< pure
 
 -- | *Θ(n)* A byte string with many bytes.
 pack :: Array Octet -> ByteString
-pack = unsafeFreeze <<< unsafePerformEff <<< Buffer.fromArray <<< Prelude.map runQuotient
+pack = unsafeFreeze <<< unsafePerformEffect <<< Buffer.fromArray <<< Prelude.map runQuotient
 
 -- | *Θ(n)* Get the bytes from a byte string.
 unpack :: ByteString -> Array Octet
-unpack = coerce <<< unsafePerformEff <<< Buffer.toArray <<< unsafeThaw
+unpack = coerce <<< unsafePerformEffect <<< Buffer.toArray <<< unsafeThaw
   where coerce = unsafeCoerce :: Array Int -> Array Octet
 
 --------------------------------------------------------------------------------
 
 -- | *O(1)* Get the nth byte.
 index :: ByteString -> Int -> Maybe Octet
-index b i = unsafePerformEff $ realGetAtOffset Nothing Just i (unsafeThaw b)
+index b i = unsafePerformEffect $ realGetAtOffset Nothing Just i (unsafeThaw b)
 
 infixl 8 index as !!
 
@@ -130,12 +129,11 @@ foreign import unsafeIndex :: ByteString -> Int -> Octet
 
 -- https://github.com/purescript-node/purescript-node-buffer/issues/14
 foreign import realGetAtOffset
-    :: ∀ eff
-     . (∀ a. Maybe a)
+    :: (∀ a. Maybe a)
     -> (∀ a. a -> Maybe a)
     -> Int
     -> Buffer
-    -> Eff (buffer :: BUFFER | eff) (Maybe Octet)
+    -> Effect (Maybe Octet)
 
 -- | *Θ(n)* Prepend a byte.
 cons :: Octet -> ByteString -> ByteString
@@ -173,7 +171,7 @@ init = unsnoc >>> Prelude.map _.init
 
 -- | *O(1)* How many bytes are in this byte string?
 length :: ByteString -> Int
-length = unsafePerformEff <<< Buffer.size <<< unsafeThaw
+length = unsafePerformEffect <<< Buffer.size <<< unsafeThaw
 
 -- | *O(1)* Check if a byte string is empty.
 isEmpty :: ByteString -> Boolean
@@ -219,13 +217,13 @@ foreign import foldr :: ∀ a. (Octet -> a -> a) -> a -> ByteString -> a
 
 -- | *Θ(n)* Encode a string.
 fromString :: String -> Encoding -> Maybe ByteString
-fromString s e = Prelude.map unsafeFreeze <<< unsafePerformEff $
+fromString s e = Prelude.map unsafeFreeze <<< unsafePerformEffect $
   catchException (const $ pure Nothing)
                  (Just <$> Buffer.fromString s e)
 
 -- | *Θ(n)* Decode a string.
 toString :: ByteString -> Encoding -> String
-toString s e = unsafePerformEff $ Buffer.toString e (unsafeThaw s)
+toString s e = unsafePerformEffect $ Buffer.toString e (unsafeThaw s)
 
 -- | *Θ(n)* `unsafePartial fromJust <<< flip fromString UTF8`.
 toUTF8 :: String -> ByteString
