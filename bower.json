@@ -17,7 +17,7 @@
     "purescript-unsafe-coerce": "^4.0.0",
     "purescript-newtype": "^3.0.0",
     "purescript-integers": "^4.0.0",
-    "purescript-quotient": "safareli/purescript-quotient#compiler/0.12",
+    "purescript-quotient": "^2.0.0",
     "purescript-exceptions": "^4.0.0"
   },
   "devDependencies": {
