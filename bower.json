@@ -9,7 +9,6 @@
     "purescript-node-buffer": "^5.0.0",
     "purescript-prelude": "^4.0.0",
     "purescript-effect": "^2.0.0",
-    "purescript-quickcheck": "^5.0.0",
     "purescript-maybe": "^4.0.0",
     "purescript-arrays": "^5.0.0",
     "purescript-leibniz": "^5.0.0",
@@ -21,7 +20,7 @@
     "purescript-exceptions": "^4.0.0"
   },
   "devDependencies": {
-    "purescript-quickcheck-laws": "^4.0.0",
+    "purescript-quickcheck-laws": "4.x - 5.x",
     "purescript-proxy": "^3.0.0"
   }
 }
