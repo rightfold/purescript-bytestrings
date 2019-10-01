@@ -9,7 +9,7 @@
     "purescript-node-buffer": "^5.0.0",
     "purescript-prelude": "^4.0.0",
     "purescript-effect": "^2.0.0",
-    "purescript-quickcheck": "^5.0.0",
+    "purescript-quickcheck": "5.x - 6.x",
     "purescript-maybe": "^4.0.0",
     "purescript-arrays": "^5.0.0",
     "purescript-leibniz": "^5.0.0",
@@ -17,11 +17,11 @@
     "purescript-unsafe-coerce": "^4.0.0",
     "purescript-newtype": "^3.0.0",
     "purescript-integers": "^4.0.0",
-    "purescript-quotient": "^2.0.0",
+    "purescript-quotient": "^3.0.0",
     "purescript-exceptions": "^4.0.0"
   },
   "devDependencies": {
-    "purescript-quickcheck-laws": "^4.0.0",
+    "purescript-quickcheck-laws": "^5.0.0",
     "purescript-proxy": "^3.0.0"
   }
 }
