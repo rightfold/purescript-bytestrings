@@ -1,12 +1,10 @@
-'use strict';
-
-exports.unsafeIndex = function(buffer) {
+export function unsafeIndex (buffer) {
     return function(offset) {
         return buffer[offset];
     };
 };
 
-exports.realGetAtOffset = function(Nothing) {
+export function realGetAtOffset (Nothing) {
     return function(Just) {
         return function(offset) {
             return function(buffer) {
@@ -21,7 +19,7 @@ exports.realGetAtOffset = function(Nothing) {
     };
 };
 
-exports.foldl = function(f) {
+export function foldl (f) {
     return function(z) {
         return function(buf) {
             var r = z;
@@ -34,7 +32,7 @@ exports.foldl = function(f) {
     };
 };
 
-exports.foldr = function(f) {
+export function foldr (f) {
     return function(z) {
         return function(buf) {
             var r = z;
